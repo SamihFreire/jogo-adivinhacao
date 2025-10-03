@@ -19,7 +19,11 @@ export default function App() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
 
   function handleRestartGame():void {
-    alert("Reiniciar o jogo!");
+    const isConfirmed = window.confirm("Você tem certeza que deseja reiniciar?");
+    
+    if(isConfirmed) {
+      startGame();
+    }
   }
 
   function startGame() {
@@ -47,6 +51,7 @@ export default function App() {
     const exists = lettersUsed.find((used) => used.value.toUpperCase() === value);
     
     if(exists) {
+      setLetter("");
       return alert("Você já utilizou a letra " + value);
     }
 
@@ -61,9 +66,31 @@ export default function App() {
     setLetter("");
   }
 
+  function endGame(message: string) {
+    alert(message);
+    startGame();
+  }
+
   useEffect(() => {
     startGame()
   }, [])
+
+  useEffect(() => {
+    if(!challenge){
+      return;
+    }
+
+    setTimeout(() => {
+      if(score === challenge.word.length) {
+        return endGame("Parabéns, você descobriu a palavra!");
+      }
+
+      const attemptLimit = challenge.word.length + ATTEMPTS_MARGIN;
+      if(lettersUsed.length === attemptLimit) {
+        return endGame("Que pena, você usou todas as tentativas disponíveis!");
+      }
+    }, 200)
+  }, [score, lettersUsed.length])
 
   if(!challenge) {
     return;
